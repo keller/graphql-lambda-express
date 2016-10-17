@@ -1,0 +1,4 @@
+simple-proxy-api.yaml
+node_modules/
+lambda-function.zip
+/build/

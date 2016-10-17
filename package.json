@@ -1,0 +1,52 @@
+{
+  "name": "graphql-lambda-express",
+  "version": "1.1.0",
+  "description": "aws-serverless-express and express-graphql",
+  "main": "src/index.js",
+  "config": {
+    "s3BucketName": "",
+    "cloudFormationStackName": "",
+    "region": "us-east-1",
+    "accountId": "",
+    "functionName": "",
+    "apiName": ""
+  },
+  "scripts": {
+    "config": "node configure.js",
+    "start": "node_modules/.bin/babel-node -e \"require('./src/app').listen(3000, function () {});\"",
+    "deploy": "npm run package-upload-update-function",
+    "create-bucket": "aws s3 mb s3://$npm_package_config_s3BucketName --region $npm_package_config_region",
+    "delete-bucket": "aws s3 rm s3://$npm_package_config_s3BucketName/lambda-function.zip --region $npm_package_config_region; aws s3 rm s3://$npm_package_config_s3BucketName/simple-proxy-api.yaml --region $npm_package_config_region; aws s3 rb s3://$npm_package_config_s3BucketName --region $npm_package_config_region",
+    "upload-api-gateway-swagger": "aws s3 cp ./simple-proxy-api.yaml s3://$npm_package_config_s3BucketName --region $npm_package_config_region",
+    "create-stack": "aws cloudformation create-stack --stack-name $npm_package_config_cloudFormationStackName --template-body file://./cloudformation.json --capabilities CAPABILITY_IAM --parameters ParameterKey=ProjectS3Bucket,ParameterValue=$npm_package_config_s3BucketName ParameterKey=LambdaFunctionName,ParameterValue=$npm_package_config_functionName --region $npm_package_config_region",
+    "update-stack": "aws cloudformation update-stack --stack-name $npm_package_config_cloudFormationStackName --template-body file://./cloudformation.json --capabilities CAPABILITY_IAM --parameters ParameterKey=ProjectS3Bucket,ParameterValue=$npm_package_config_s3BucketName ParameterKey=LambdaFunctionName,ParameterValue=$npm_package_config_functionName --region $npm_package_config_region",
+    "delete-stack": "aws cloudformation delete-stack --stack-name $npm_package_config_cloudFormationStackName --region $npm_package_config_region",
+    "package-function": "rm -rf build && rm lambda-function.zip && mkdir build && cp src/* build/. && ./node_modules/.bin/babel src -d build && cp package.json build/. && cp yarn.lock build/. && cd build && ../node_modules/.bin/yarn --production && zip -q -r ../lambda-function.zip .",
+    "upload-function": "aws s3 cp ./lambda-function.zip s3://$npm_package_config_s3BucketName --region $npm_package_config_region",
+    "update-function": "aws lambda update-function-code --function-name $npm_package_config_functionName --region $npm_package_config_region --zip-file fileb://lambda-function.zip",
+    "package-upload-function": "npm run package-function && npm run upload-function",
+    "upload-update-function": "npm run upload-function && npm run update-function",
+    "package-upload-update-function": "npm run package-upload-function && npm run update-function",
+    "setup": "./node_modules/.bin/yarn && (aws s3api get-bucket-location --bucket $npm_package_config_s3BucketName --region $npm_package_config_region || npm run create-bucket) && npm run package-upload-function && npm run upload-api-gateway-swagger && npm run create-stack"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "aws-serverless-express": "^1.1.0",
+    "express": "^4.14.0",
+    "express-graphql": "^0.5.4",
+    "graphql": "^0.7.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-plugin-syntax-async-functions": "^6.3.13",
+    "babel-plugin-transform-async-to-generator": "^6.4.6",
+    "babel-plugin-transform-regenerator": "^6.4.4",
+    "babel-plugin-transform-runtime": "^6.4.3",
+    "babel-polyfill": "^6.3.14",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-stage-0": "^6.3.13",
+    "babel-register": "^6.16.3",
+    "eslint": "^3.8.0",
+    "yarn": "^0.15.1"
+  }
+}
