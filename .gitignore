@@ -1,4 +1,11 @@
-simple-proxy-api.yaml
+lambda-invoke-response.json
+packaged-sam.yaml
 node_modules/
-lambda-function.zip
 /build/
+.eslintrc.js
+.eslintignore
+
+# because these get modifed with credentials, require -f to commit
+package.json
+cloudformation.yaml
+simple-proxy-api.yaml
