@@ -1,5 +1,4 @@
 lambda-invoke-response.json
-packaged-sam.yaml
 node_modules/
 /build/
 .eslintrc.js
