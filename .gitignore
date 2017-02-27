@@ -4,8 +4,3 @@ node_modules/
 /build/
 .eslintrc.js
 .eslintignore
-
-# because these get modifed with credentials, require -f to commit
-package.json
-cloudformation.yaml
-simple-proxy-api.yaml
